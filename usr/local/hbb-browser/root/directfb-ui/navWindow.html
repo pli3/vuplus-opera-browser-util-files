@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE
+ html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+ "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!--
+This is an Opera navigation bar written with XHTML, CSS and Javascript
+which tries to mimic desktop Opera as far as possible.
+Features:
+ * Double-clicking the Opera icon directs the browser to www.opera.com
+ * The forward/backward buttons are enabled/disabled depending on
+   the contents of page history.
+ * The reload-button turns into a stop-button when a page is loading.
+ * The addressbar has a favicon.
+ * Clicking the x-button exits Opera.
+-->
+<html>
+	<head>
+		<title>Navigation controller</title>
+		<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+		<style type="text/css">
+		/*<![CDATA[*/
+		body {
+			background: white url("panel.png") repeat-x;
+			overflow: hidden;
+		}
+
+		/* Lay out the navigation bar with absolute positioning. Buttons with
+		two states occupy the same place, but one is always hidden.  */
+		#logo {
+			position: absolute;
+			top: 4px;
+			left: 6px;
+			width: 22px;
+			height: 22px;
+			background: url("opera_22x22.png") no-repeat;
+			border-right: 1px solid #ccc;
+			padding: 1px 8px 1px 0px;
+		}
+
+
+		.button {
+			position: absolute;
+			top: 1px;
+			width: 32px;
+			height: 30px;
+		}
+
+
+		#back, #backDisabled {
+			left: 44px;
+		}
+
+		#back {
+			background-image: url("back.png");
+			visibility: hidden;
+		}
+
+		#back:hover {
+			background-image: url("back-hover.png");
+		}
+
+		#back:active {
+			background-image: url("back-pressed.png");
+		}
+
+		#backDisabled {
+			background-image: url("back-disabled.png");
+			visibility: visible;
+		}
+
+
+		#fwd, #fwdDisabled {
+			left: 76px;
+		}
+
+		#fwd {
+			background-image: url("forward.png");
+			visibility: hidden;
+		}
+
+		#fwd:hover {
+			background-image: url("forward-hover.png");
+		}
+
+		#fwd:active {
+			background-image: url("forward-pressed.png");
+		}
+
+		#fwdDisabled {
+			background-image: url("forward-disabled.png");
+			visibility: visible;
+		}
+
+
+		#reload, #stop {
+			left: 108px;
+		}
+
+		#reload {
+			background-image: url("reload.png");
+			visibility: visible;
+		}
+
+		#reload:hover {
+			background-image: url("reload-hover.png");
+		}
+
+		#reload:active {
+			background-image: url("reload-pressed.png");
+		}
+
+		#stop {
+			background-image: url("stop.png");
+			visibility: hidden;
+		}
+
+		#stop:hover {
+			background-image: url("stop-hover.png");
+		}
+
+		#stop:active {
+			background-image: url("stop-pressed.png");
+		}
+
+		#addressbar {
+			position: absolute;
+			top: 5px;
+			left: 144px;
+			height: 16px;
+			padding: 3px 3px 3px 22px;
+			border: 1px solid #b3b9c4;
+			color: black;
+			font-size: 14px;
+			/* Set favicon using background-image.  */
+			background-color: white;
+			background-image: url("documents.png");
+			background-repeat: no-repeat;
+			background-position: 2px 2px;
+		}
+
+		#go {
+			position: absolute;
+			top: 6px;
+			right: 24px;
+		}
+
+
+		#mouseModeOn, #mouseModeOff {
+			position: absolute;
+			top: 6px;
+			right: 2px;
+			width: 22px;
+			height: 22px;
+			background-repeat: no-repeat;
+		}
+
+		#mouseModeOn {
+			background-image: url("mouse-on.png");
+			visibility: visible;
+		}
+		#mouseModeOff {
+			background-image: url("mouse-off.png");
+			visibility: hidden;
+		}
+
+		/*]]>*/
+		</style>
+		<script type="text/javascript">
+		//<![CDATA[
+		function init() {
+			// Set the width of the address bar appropriately.
+			addressbar=document.getElementById("addressbar");
+			width=document.documentElement.clientWidth-236;
+			if (width > 0) {
+				addressbar.style.width=width + "px";
+			}
+		}
+
+		// Set opera to visit the given URL. Return false to allow use
+		// with the onSubmit event, which otherwise would cause this
+		// navigation page to be reloaded.
+		function openURL(url) {
+			operaController.openUrl(url);
+			return false;
+		}
+
+		function mouseModeOn() {
+			show(document.getElementById("mouseModeOn"));
+			hide(document.getElementById("mouseModeOff"));
+		}
+
+		function mouseModeOff() {
+			hide(document.getElementById("mouseModeOn"));
+			show(document.getElementById("mouseModeOff"));
+		}
+
+		function urlChange(url) {
+			addressbar=document.getElementById("addressbar");
+			addressbar.value=url;
+		}
+
+		function setDocumentIcon(url) {
+			addressbar=document.getElementById("addressbar");
+			addressbar.style.backgroundImage="url(" + url + ")";
+		}
+
+		function unsetDocumentIcon() {
+			addressbar=document.getElementById("addressbar");
+			addressbar.style.backgroundImage="url(documents.png)";
+		}
+		function showBrowserMenu() {
+			addressbar=document.getElementById("addressbar");
+			operaController.showBrowserMenu(addressbar.value);
+		}
+
+		function showVirtualKeyboard(data) {
+			operaController.showVirtualKeyboard(data);
+		}
+
+		function show(e) {
+			if(e)
+				e.style.visibility="visible";
+		}
+
+		function hide(e) {
+			if(e)
+				e.style.visibility="hidden";
+		}
+
+		function loadingStart() {
+			show(document.getElementById("stop"));
+			hide(document.getElementById("reload"));
+		}
+
+		function loadingFinished() {
+			show(document.getElementById("reload"));
+			hide(document.getElementById("stop"));
+		}
+
+		// If fwd/back is true, make the respective navigation button active,
+		// otherwise make in inactive (gray, dimmed).
+		function setNavigation(goBack, goFwd) {
+			back = document.getElementById("back");
+			backDisabled = document.getElementById("backDisabled");
+			fwd = document.getElementById("fwd");
+			fwdDisabled = document.getElementById("fwdDisabled");
+			if (goBack) {
+				show(back);
+				hide(backDisabled);
+			} else {
+				show(backDisabled);
+				hide(back);
+			}
+
+			if (goFwd) {
+				show(fwd);
+				hide(fwdDisabled);
+			} else {
+				show(fwdDisabled);
+				hide(fwd);
+			}
+		}
+		//]]>
+		</script>
+	</head>
+	<body onload="init();">
+		<object type="application/opera-controller" id="operaController"></object>
+
+		<div id="logo" ondblclick="operaController.openStartpage();"></div>
+
+		<div class="button" id="backDisabled"></div>
+		<div class="button" id="back" onclick="operaController.back();"></div>
+
+		<div class="button" id="fwdDisabled"></div>
+		<div class="button" id="fwd" onclick="operaController.forward();"></div>
+
+		<div class="button" id="reload" onclick="operaController.reload();"></div>
+		<div class="button" id="stop" onclick="operaController.stop();"></div>
+
+		<form action="#" onsubmit="return openURL(this.addressbar.value);">
+			<input type="text" id="addressbar" onfocus="this.select()"></input>
+			<button type="submit" id="go"> Go </button>
+		</form>
+
+		<div class="button" id="mouseModeOff"></div>
+		<div class="button" id="mouseModeOn"></div>
+	</body>
+</html>

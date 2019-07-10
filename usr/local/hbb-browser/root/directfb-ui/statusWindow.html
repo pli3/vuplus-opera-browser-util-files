@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE
+ html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+ "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!-- This is a translucent window used to display status messages.
+A JavaScript callback is used to update the status message.  -->
+<html>
+	<head>
+		<title>Status page</title>
+		<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+		<style type="text/css">
+		/*<![CDATA[*/
+		body {
+			background-color: transparent;
+			overflow: hidden;
+		}
+
+		#left, #right {
+			position: absolute;
+			top: 0;
+			width: 14px;
+			height: 40px;
+			background-color: transparent;
+		}
+
+		#left {
+			left: 0;
+			/*background-image: url("status-left.png");*/
+		}
+
+		#right {
+			right: 0;
+			/*background-image: url("status-right.png");*/
+		}
+
+		#statusMessage {
+			/* Background styling.   */
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 14px;
+			right: 14px;
+			background: transparent/* url("status-repeat.png") repeat-x*/;
+			/* Text styling.  */
+			font-size: 18px;
+			font-weight: bold;
+			padding-top: 8px;
+			color: white;
+			text-align: center;
+		}
+		/*]]>*/
+		</style>
+		<script type="text/javascript">
+		//<![CDATA[
+		function setStatusMessage(status) {
+			msg = document.getElementById("statusMessage");
+			if(msg)
+				msg.firstChild.nodeValue=status;
+		}
+		//]]>
+		</script>
+	</head>
+
+	<body>
+		<div id="left"></div>
+		<div id="statusMessage">Please wait...</div>
+		<div id="right"></div>
+	</body>
+</html>
